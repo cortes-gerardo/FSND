@@ -30,7 +30,7 @@ This will install all of the required packages we selected within the `requireme
 
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server. 
 
-## Database Setup
+##### Database Setup
 With Postgres running, restore a database using the trivia.psql file provided. From the backend folder in terminal run:
 ```bash
 psql trivia < trivia.psql
@@ -52,43 +52,174 @@ Setting the `FLASK_ENV` variable to `development` will detect file changes and r
 
 Setting the `FLASK_APP` variable to `flaskr` directs flask to use the `flaskr` directory and the `__init__.py` file to find the application. 
 
-## Tasks
+## API Reference
+### Getting Started
+#### Base URL
+This project is intended to be run locally on `http://127.0.0.1:5000/`
 
-One note before you delve into your tasks: for each endpoint you are expected to define the endpoint and response data. The frontend will be a plentiful resource because it is set up to expect certain endpoints and response data formats already. You should feel free to specify endpoints in your own way; if you do so, make sure to update the frontend or you will get some unexpected behavior. 
-
-1. Use Flask-CORS to enable cross-domain requests and set response headers. 
-2. Create an endpoint to handle GET requests for questions, including pagination (every 10 questions). This endpoint should return a list of questions, number of total questions, current category, categories. 
-3. Create an endpoint to handle GET requests for all available categories. 
-4. Create an endpoint to DELETE question using a question ID. 
-5. Create an endpoint to POST a new question, which will require the question and answer text, category, and difficulty score. 
-6. Create a POST endpoint to get questions based on category. 
-7. Create a POST endpoint to get questions based on a search term. It should return any questions for whom the search term is a substring of the question. 
-8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
-9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
-
-REVIEW_COMMENT
+### Errors
+Errors are returned as a JSON object in the following format
+```json
+{
+    "success": false,
+    "error": 400,
+    "message": "bad request"
+}
 ```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
+The API returns five error types on a failed request
+- 400 bad request
+- 404 resource not found
+- 405 method not allowed
+- 422 unprocessable
+- 500 internal server error
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
+### Resource endpoint library
+#### GET /categories
+- Create a GET endpoint to get questions based on category. 
+- Request Arguments: The category id to filter the category as an URL parameter and the page integer as a parameter `page=1`
+- Returns: An object with a success flag as `true`, a list of paginated questions, number of total questions of the selected category as an integer, and the current category as an object.
+```json
+{
+  "1": "Science",
+  "2": "Art",
+  "3": "Geography",
+  "4": "History",
+  "5": "Entertainment",
+  "6": "Sports"
+}
+```
 
-GET '/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+#### GET /categories/{id}/questions
+- Create a GET endpoint to get questions based on category. 
+- Request Arguments: The category id to filter the category as an URL parameter and the page integer as a parameter `page=1`
+- Returns: An object with a success flag as `true` a list of paginated questions, number of total questions of the selected category as integer, and the current category as object.
+```json
+{
+  "success": true,
+  "currentCategory": {
+    "id": 1,
+    "type": "Science"
+  },
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    }
+  ],
+  "totalQuestions": 3
+}
+```
+
+#### GET /questions
+- Create an endpoint to handle GET requests for questions, including pagination (every 10 questions). This endpoint should return a list of questions, the number of total questions, the current category, categories. 
+- Request Arguments: The page integer as a parameter `page=1`
+- Returns: An object with a success flag as `true`, a list of paginated questions, number of total questions as an integer, current category as an object, and a dictionary of all categories.
+```json
+{
+  "success": true,
+  "questions": [...],
+  "totalQuestions": 19,
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "currentCategory": ""
+}
+```
+
+#### DELETE /questions/{id}
+- An endpoint to DELETE question using a question ID. 
+- Request Arguments: The question Id to be deleted
+- Returns: An object with a success flag as `true`
+```json
+{
+  "success": true
+}
+```
+
+#### POST /questions
+- The POST has two behavior depending on the body:
+
+
+- An endpoint to POST a new question, which will require the question and answer as text, category, and difficulty score. 
+- Request Body: an object with the question and answer as text, the difficulty ranked from 1 to 5, and the category id,
+```json
+{
+  "question": "How many planets are in the solar system?",
+  "answer": "8",
+  "difficulty": 2,
+  "category": 1
+}
+```
+- Returns: An object with a success flag as `true`
+```json
+{
+  "success": true
+}
+```
+
+
+- A POST endpoint to get questions based on a search term. It should return any questions for whom the search term is a substring of the question. 
+- Request Body: An object with the search term
+```json
+{
+  "searchTerm": "Peanut Butter"
+}
+```
+- Returns: An object with a success flag as `true`, a list of paginated questions, number of total questions of the selected category as an integer, and the current category as an object.
+```json
+{
+  "success": true,
+  "currentCategory": {
+    "id": 1,
+    "type": "Science"
+  },
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    }
+  ],
+  "totalQuestions": 3
+}
+```
+
+#### POST /quizzes
+- A POST endpoint to get questions to play the quiz. This endpoint takes a category and previous question parameters and returns random questions within the given category if provided, and that is not one of the previous questions. 
 - Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
-
+- Request Body: An object with an array of the id of previous questions, and a category object if there is a selected category.
+```json
+{
+  "previous_questions": [22,20],
+  "quiz_category": {
+    "type": "Science",
+    "id": "1"
+  }
+}
 ```
-
+- Returns: An object with a success flag as `true`, and the current question object.
+```json
+{
+  "success": true,
+  "question": {
+    "answer": "Alexander Fleming",
+    "category": 1,
+    "difficulty": 3,
+    "id": 21,
+    "question": "Who discovered penicillin?"
+  }
+}
+```
 
 ## Testing
 To run the tests, run
