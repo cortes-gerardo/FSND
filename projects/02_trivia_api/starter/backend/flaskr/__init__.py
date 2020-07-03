@@ -26,21 +26,17 @@ def create_app(test_config=None):
     setup_db(app)
     CORS(app)
 
-    '''
-    @TODO: Delete the sample route after completing the TODOs
-    '''
-
     # CORS Headers
     @app.after_request
     def after_request(response):
         response.headers.add('Access-Control-Allow-Origin', '*')
-        # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,POST,DELETE')
         return response
 
     @app.route('/categories')
     def get_categories():
-        categories = {category.id: category.type for category in Category.query.all()}
+        categories = {category.id: category.type
+                      for category in Category.query.all()}
 
         return jsonify({
             'success': True,
@@ -55,7 +51,8 @@ def create_app(test_config=None):
         if len(current_questions) == 0:
             abort(404)
 
-        categories = {category.id: category.type for category in Category.query.all()}
+        categories = {category.id: category.type
+                      for category in Category.query.all()}
 
         return jsonify({
             'success': True,
@@ -67,24 +64,22 @@ def create_app(test_config=None):
 
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_questions(question_id):
-        question = Question.query.filter(Question.id == question_id).one_or_none()
+        question = Question.query \
+            .filter(Question.id == question_id) \
+            .one_or_none()
+
         if question is None:
             abort(404)
 
         try:
             question.delete()
+
             return jsonify({
                 'success': True
             })
 
-        except:
+        except Exception:
             abort(422)
-
-    '''
-    TEST: When you submit a question on the "Add" tab, 
-    the form will clear and the question will appear at the end of the last page
-    of the questions list in the "List" tab.  
-    '''
 
     @app.route('/questions', methods=['POST'])
     def post_questions():
@@ -97,11 +92,15 @@ def create_app(test_config=None):
         new_difficulty = body.get('difficulty', None)
         new_category = body.get('category', None)
 
-        if search_term:
+        if search_term is not None:
             return search_questions(request, search_term)
 
-        elif new_question and new_answer and new_difficulty and new_category:
-            return add_questions(new_question, new_answer, new_difficulty, new_category)
+        elif new_question is not None \
+                and new_answer is not None \
+                and new_difficulty is not None \
+                and new_category is not None:
+            return add_questions(new_question, new_answer,
+                                 new_difficulty, new_category)
 
         else:
             abort(400)
@@ -122,7 +121,7 @@ def create_app(test_config=None):
                 'success': True
             })
 
-        except:
+        except Exception:
             abort(422)
 
     def search_questions(request, search_term):
@@ -130,6 +129,7 @@ def create_app(test_config=None):
             .filter(Question.question.ilike('%{}%'.format(search_term))) \
             .all()
         questions = paginate(request, selection)
+
         return jsonify({
             'success': True,
             'questions': questions,
@@ -140,11 +140,13 @@ def create_app(test_config=None):
     @app.route('/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):
         category = Category.query.get(category_id)
+
         if category is None:
             abort(400)
 
         selection = Question.query.filter(Question.category == category_id)
         questions = paginate(request, selection)
+
         return jsonify({
             'success': True,
             'questions': questions,
@@ -162,18 +164,15 @@ def create_app(test_config=None):
             abort(400)
 
         category_id = int(quiz_category['id'])
+
+        query = Question.query.filter(Question.id.notin_(previous_questions))
         if Category.query.get(category_id):
-            categories = Question.query \
-                .filter(Question.category == category_id, Question.id.notin_(previous_questions)) \
-                .all()
-        else:
-            categories = Question.query \
-                .filter(Question.id.notin_(previous_questions)) \
-                .all()
+            query = query.filter(Question.category == category_id)
+        questions = query.all()
 
         return jsonify({
             'success': True,
-            'question': random.choice(categories).format() if categories else ''
+            'question': random.choice(questions).format() if questions else ''
         })
 
     # ---

@@ -30,13 +30,14 @@ This will install all of the required packages we selected within the `requireme
 
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server. 
 
-##### Database Setup
+### Local Development
+#### Database Setup
 With Postgres running, restore a database using the trivia.psql file provided. From the backend folder in terminal run:
 ```bash
 psql trivia < trivia.psql
 ```
 
-## Running the server
+#### Running the server
 
 From within the `backend` directory first ensure you are working using your created virtual environment.
 
@@ -51,6 +52,15 @@ flask run
 Setting the `FLASK_ENV` variable to `development` will detect file changes and restart the server automatically.
 
 Setting the `FLASK_APP` variable to `flaskr` directs flask to use the `flaskr` directory and the `__init__.py` file to find the application. 
+
+### Testing
+To run the tests, run
+```
+dropdb trivia_test
+createdb trivia_test
+psql trivia_test < trivia.psql
+python test_flaskr.py
+```
 
 ## API Reference
 ### Getting Started
@@ -221,11 +231,8 @@ The API returns five error types on a failed request
 }
 ```
 
-## Testing
-To run the tests, run
-```
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
-```
+## Authors
+[Gerardo Cortes Oquendo](mailto:gerardo.cortes.o@gmail.com)
+
+## Acknowledgements
+To Udacity and the [original code](https://github.com/udacity/FSND/tree/master/projects/02_trivia_api/starter)
