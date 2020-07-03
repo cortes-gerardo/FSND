@@ -1,2 +1,2 @@
-export EXCITED=true
-export DATABASE_URL="postgres://postgres:password!@localhost:5432/postgres"
+EXCITED
+DATABASE_URL
